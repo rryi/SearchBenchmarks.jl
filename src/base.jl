@@ -1,9 +1,6 @@
 # comparing _searchindex from base.search.jl with variants
 # Author Robert Rudolph, Rudolph Consulting, Ahrensburg, Germany
-import Base.ByteArray, Base._search_bloom_mask
-
-Base.@propagate_inbounds _nthbyte(s::String, i) = codeunit(s, i)
-Base.@propagate_inbounds _nthbyte(a::Union{AbstractVector{UInt8},AbstractVector{Int8}}, i) = a[i]
+import Base.ByteArray, Base._search_bloom_mask, Base._nthbyte
 
 
 """
