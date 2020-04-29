@@ -22,7 +22,7 @@ function bmsearch(t::SearchSequence)
     size = sizeof(t) # no preprocessing restriction on huge patterns
     skip = size # good char skip like in bloom
     tlast = _nthbyte(t,size)
-    badchar = zeros(UInt8,256)
+    badchar = zeros(Int,256) # for small patterns, UInt8 would be faster
     for j in 1:size-1
         badchar[_nthbyte(t,j)+1] = j
         if _nthbyte(t,j)==tlast
@@ -30,7 +30,7 @@ function bmsearch(t::SearchSequence)
         end
     end
     badchar[tlast+1] = size
-    return (t,badchar,skip)
+    return (t,badchar,skip,tlast)
 end
 
 function bmsearch(s::SearchSequence, t::SearchSequence, i::Integer,sv::MaybeVector=nothing)
@@ -38,7 +38,8 @@ function bmsearch(s::SearchSequence, t::SearchSequence, i::Integer,sv::MaybeVect
 end
 
 function bmsearch(s::SearchSequence,p::Tuple, i::Integer,sv::MaybeVector=nothing)
-    DOSTATS = sv isa Nothing
+    (t,badchar,skip,tlast) = p
+    DOSTATS = !(sv isa Nothing)
     n = sizeof(t)
     m = sizeof(s)
 
@@ -55,17 +56,15 @@ function bmsearch(s::SearchSequence,p::Tuple, i::Integer,sv::MaybeVector=nothing
         return 0
     end
 
-    (t,badchar,skip) = p
-
-    tlast = _nthbyte(t,n)
     if DOSTATS loops = 0 end
-    if DOSTATS bloomtests = 0 end
-    if DOSTATS bloomskips = 0 end
+    if DOSTATS bloomtests = 0 end # here: badchar skip > simple goodsuffix skip
+    if DOSTATS bloomskips = 0 end # here: badchar skips >1
     i += n-1
     while i <= m
         if DOSTATS loops += 1 end
         if (silast = _nthbyte(s,i)) != tlast
             i += n - badchar[silast+1] # guaranteed >0
+            if DOSTATS && badchar[silast+1]>1; bloomskips += 1 end
         else
             # check candidate
             j = n-1
@@ -79,6 +78,7 @@ function bmsearch(s::SearchSequence,p::Tuple, i::Integer,sv::MaybeVector=nothing
             end
             # mismatch at j
             i += max(skip,j - badchar[sij+1])
+            if DOSTATS && j - badchar[sij+1]>skip; bloomtests+=1;end
         end
     end
     if DOSTATS sv[Int(SFloops)] = loops end

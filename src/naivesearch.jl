@@ -12,7 +12,8 @@ function naivesearch(s::SearchSequence, t::SearchSequence, i::Integer,sv::MaybeV
 end
 
 function naivesearch(s::SearchSequence,p::Tuple, i::Integer,sv::MaybeVector=nothing)
-    DOSTATS = sv isa Nothing
+    (t,) = p
+    DOSTATS = !(sv isa Nothing)
     n = sizeof(t)
     m = sizeof(s)
 
@@ -28,7 +29,6 @@ function naivesearch(s::SearchSequence,p::Tuple, i::Integer,sv::MaybeVector=noth
     if w < 0 || i - 1 > w
         return 0
     end
-    (t,) = p
 
     tlast = _nthbyte(t,n)
     if DOSTATS loops = 0 end

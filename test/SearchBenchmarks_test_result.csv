@@ -1,0 +1,12 @@
+bloom_v0,SFinit, 0, 0, 200, 300, 100
+bloom_v0,SFkernel, 0, 0, 1600, 1300, 999
+bloom_v0,SFloops, 0, 0, 261, 213, 181
+bloom_v0,SFtests, 0, 0, 260, 212, 180
+bloom_v0,SFskips, 0, 0, 245, 195, 163
+bloom_v0,SFbits, 0, 0, 3, 4, 5
+naivesearch,SFinit, 0, 0, 0, 200, 100
+naivesearch,SFkernel, 0, 0, 1800, 1800, 1500
+naivesearch,SFloops, 0, 0, 996, 996, 996
+naivesearch,SFtests, 0, 0, 0, 0, 0
+naivesearch,SFskips, 0, 0, 0, 0, 0
+naivesearch,SFbits, 0, 0, 0, 0, 0

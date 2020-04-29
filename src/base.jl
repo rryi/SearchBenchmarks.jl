@@ -1,6 +1,9 @@
 # comparing _searchindex from base.search.jl with variants
 # Author Robert Rudolph, Rudolph Consulting, Ahrensburg, Germany
-import Base.ByteArray, Base._nthbyte, Base._search_bloom_mask
+import Base.ByteArray, Base._search_bloom_mask
+
+Base.@propagate_inbounds _nthbyte(s::String, i) = codeunit(s, i)
+Base.@propagate_inbounds _nthbyte(a::Union{AbstractVector{UInt8},AbstractVector{Int8}}, i) = a[i]
 
 
 """
@@ -11,10 +14,6 @@ to data structures with efficient byte access via position
 and intentionally do not support AbstractVector and AbstractString
 """
 const SearchSequence = Union{String,Vector{UInt8},Vector{Int8}}
-
-"search structure is a processed pattern for a specific search method"
-abstract type SearchStructure end
-
 
 #=
 "structure used by many bloom-search-variants"
@@ -83,7 +82,7 @@ const nullmat = zeros(Int,0)
 function record(stats::Benchmark, f::Function, i::Int, sv::MaybeVector)
     mat = get(stats.dict,f,nullmat)
     if mat===nullmat
-        mat = zeros(Int,Int(size),Int(typemax(StatsFields)))
+        mat = zeros(Int,Int(stats.size),Int(typemax(StatsFields)))
         push!(stats.dict,f=>mat)
     end
     mat[i,:] = sv

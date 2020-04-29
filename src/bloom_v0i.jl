@@ -25,9 +25,9 @@ Some technical changes are:
  * benchmark measurements, compiled away if last parameter is nothing
  * code is valid for String and ByteArray sequences
 """
-function bloom_v0 end
+function bloom_v0i end
 
-function bloom_v0(t::SearchSequence)
+function bloom_v0i(t::SearchSequence)
     n = sizeof(t)
     bloom_mask = UInt64(0)
     skip = n - 1
@@ -41,11 +41,12 @@ function bloom_v0(t::SearchSequence)
     return t,bloom_mask,skip,tlast
 end
 
-function bloom_v0(s::SearchSequence, t::SearchSequence, i::Integer,sv::MaybeVector)
-    bloom_v0(s,bloom_v0(t),i,sv)
+function bloom_v0i(s::SearchSequence, t::SearchSequence, i::Integer,sv::MaybeVector)
+    bloom_v0i(s,bloom_v0(t),i,sv)
 end
 
-function bloom_v0(s::SearchSequence, p::Tuple,i::Integer,sv::MaybeVector=nothing)
+function bloom_v0i(s::SearchSequence, p::Tuple,i::Integer,sv::MaybeVector=nothing)
+    @inbounds begin
     ( t,bloom_mask,skip,tlast) = p
     DOSTATS = !(sv isa Nothing)
     n = sizeof(t)
@@ -119,4 +120,5 @@ function bloom_v0(s::SearchSequence, p::Tuple,i::Integer,sv::MaybeVector=nothing
     if DOSTATS sv[Int(SFskips)] = bloomskips end
     if DOSTATS sv[Int(SFbits)] = bitcount(bloom_mask) end
     0
+end
 end

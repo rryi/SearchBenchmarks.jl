@@ -14,7 +14,7 @@ function bloom_v2(t::SearchSequence)
             skip = n - j -1
         end
     end
-    return t,bloom_mask,bloom_skip,skip
+    return t,bloom_mask,skip,tlast
 end
 
 function bloom_v2(s::SearchSequence, t::SearchSequence, i::Integer,sv::MaybeVector=nothing)
@@ -22,7 +22,8 @@ function bloom_v2(s::SearchSequence, t::SearchSequence, i::Integer,sv::MaybeVect
 end
 
 function bloom_v2(s::SearchSequence,p::Tuple, i::Integer,sv::MaybeVector=nothing)
-    DOSTATS = sv isa Nothing
+    (t,bloom_mask,skip,tlast) = p # replaces original code, commented out
+    DOSTATS = !(sv isa Nothing)
     n = sizeof(t)
     m = sizeof(s)
     if n == 0
@@ -37,15 +38,6 @@ function bloom_v2(s::SearchSequence,p::Tuple, i::Integer,sv::MaybeVector=nothing
         return 0
     end
 
-    skip = n
-    tlast = _nthbyte(t,n)
-    bloom_mask = UInt64(_search_bloom_mask(tlast))
-    for j in 1:n-1
-        bloom_mask |= _search_bloom_mask(_nthbyte(t,j))
-        if _nthbyte(t,j) == tlast
-            skip = n - j
-        end
-    end
     if DOSTATS loops = 0 end
     if DOSTATS bloomtests = 0 end
     if DOSTATS bloomskips = 0 end

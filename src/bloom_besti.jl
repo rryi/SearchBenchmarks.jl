@@ -7,9 +7,9 @@ Optimized search function, using benchmark insights:
       and also reducing initialization effort
 
 """
-function bloom_best end
+function bloom_besti end
 
-function bloom_best(t::SearchSequence)
+function bloom_besti(t::SearchSequence)
     n = sizeof(t)
     skip = n
     tlast = _nthbyte(t,n)
@@ -46,12 +46,13 @@ function bloom_best(t::SearchSequence)
     return t,bloom_mask,bloom_skip,bloom_bits,skip,tlast
 end
 
-function bloom_best(s::SearchSequence, t::SearchSequence, i::Integer,sv::MaybeVector=nothing)
-    bloom_best(s,bloom_best(t),i,sv)
+function bloom_besti(s::SearchSequence, t::SearchSequence, i::Integer,sv::MaybeVector=nothing)
+    bloom_besti(s,bloom_besti(t),i,sv)
 end
 
 
-function bloom_best(s::SearchSequence,p::Tuple,i::Integer,sv::MaybeVector=nothing)
+function bloom_besti(s::SearchSequence,p::Tuple,i::Integer,sv::MaybeVector=nothing)
+    @inbounds begin
     (t,bloom_mask,bloom_skip,bloom_bits,skip,tlast) = p
     DOSTATS = !(sv isa Nothing)
     n = sizeof(t)
@@ -155,4 +156,5 @@ function bloom_best(s::SearchSequence,p::Tuple,i::Integer,sv::MaybeVector=nothin
     if DOSTATS sv[Int(SFskips)] = bloomskips end
     if DOSTATS sv[Int(SFbits)] = bitcount(bloom_mask) end
     0
+end
 end
