@@ -22,6 +22,7 @@ function runbench(f::Function,s,t, b::Benchmark, stats::Bool)
         # patternsize 2 is 1st run, ignore it (may include compilation)
         record(b,f,sizeof(t),sf)
     end
+    nothing
 end
 
 
@@ -46,12 +47,8 @@ Base.@propagate_inbounds function benchmark(patternsize::Int, textsize::Int, sou
         tj = s[textsize-patternsize+1:textsize-patternsize+j]
         #println()
         #println("benchmark with pattern size $j")
-        last = -1
         for f in functions
-            pos = runbench(f,s,tj,b,stats)
-            if pos!=last && last>=0
-                @error "pos mismatch: f=$f, pos=$pos, last=$last"
-            end
+            runbench(f,s,tj,b,stats)
         end
     end
     io = open(result*".csv", "w")

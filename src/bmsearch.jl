@@ -33,8 +33,8 @@ function bmsearch(t::SearchSequence)
     return (t,badchar,skip,tlast)
 end
 
-function bmsearch(s::SearchSequence, t::SearchSequence, i::Integer,sv::MaybeVector=nothing)
-    bmsearch(s,bmsearch(t),s,i,sv)
+function bmsearch(s::SearchSequence, t::SearchSequence, i::Integer)
+    bmsearch(s,bmsearch(t),i)
 end
 
 function bmsearch(s::SearchSequence,p::Tuple, i::Integer,sv::MaybeVector=nothing)

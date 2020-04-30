@@ -41,8 +41,8 @@ function bloom_v0(t::SearchSequence)
     return t,bloom_mask,skip,tlast
 end
 
-function bloom_v0(s::SearchSequence, t::SearchSequence, i::Integer,sv::MaybeVector)
-    bloom_v0(s,bloom_v0(t),i,sv)
+function bloom_v0(s::SearchSequence, t::SearchSequence, i::Integer)
+    bloom_v0(s,bloom_v0(t),i)
 end
 
 function bloom_v0(s::SearchSequence, p::Tuple,i::Integer,sv::MaybeVector=nothing)

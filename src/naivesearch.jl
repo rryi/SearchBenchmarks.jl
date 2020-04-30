@@ -7,8 +7,8 @@ function naivesearch(t::SearchSequence)
     return (t,)
 end
 
-function naivesearch(s::SearchSequence, t::SearchSequence, i::Integer,sv::MaybeVector=nothing)
-    naivesearch(s,naive(t),i,sv)
+function naivesearch(s::SearchSequence, t::SearchSequence, i::Integer)
+    naivesearch(s,naivesearch(t),i)
 end
 
 function naivesearch(s::SearchSequence,p::Tuple, i::Integer,sv::MaybeVector=nothing)

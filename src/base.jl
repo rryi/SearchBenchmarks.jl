@@ -91,3 +91,16 @@ function line(stats::Benchmark,f::Function, field::StatsFields)
     m = get(stats.dict,f,nullmat)
     m[:,Int(field)]
 end
+
+
+"return all search functions in this package (prefix 'bloom' or suffix 'search')"
+function all_search_functions()
+    searches = Function[]
+    for nm in names(SearchBenchmarks)
+        f = eval(nm)
+        if f isa Function && (endswith(string(nm),"search") || startswith(string(nm),"bloom"))
+            push!(searches,f)
+        end
+    end
+    searches
+end

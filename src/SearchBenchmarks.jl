@@ -4,6 +4,7 @@ using Plots
 import Random
 
 include("base.jl") # basic types and utilities for benchmarking
+export all_search_functions, Benchmark
 
 # it follows the list of all search implementations.
 # each file defines a search function with two methods:
@@ -29,5 +30,5 @@ export naivesearch
 
 include("benchmark.jl") # do and visualize benchmark
 
-export benchmark, Benchmark
+export benchmark
 end # module

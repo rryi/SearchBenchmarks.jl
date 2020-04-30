@@ -45,8 +45,8 @@ function bloom_best2(t::SearchSequence)
     return t,bloom_mask,bloom_skip,bloom_bits,skip,tlast
 end
 
-function bloom_best2(s::SearchSequence, t::SearchSequence, i::Integer,sv::MaybeVector=nothing)
-    bloom_besti(s,bloom_best2(t),i,sv)
+function bloom_best2(s::SearchSequence, t::SearchSequence, i::Integer)
+    bloom_best2(s,bloom_best2(t),i)
 end
 
 
@@ -91,7 +91,7 @@ function bloom_best2(s::SearchSequence,p::Tuple,i::Integer,sv::MaybeVector=nothi
                     # match found?
                     if j == n
                         if DOSTATS sv[Int(SFloops)] = loops; sv[Int(SFtests)] = bloomtests; sv[Int(SFskips)] = bloomskips; sv[Int(SFbits)] = bitcount(bloom_mask) end
-                        return i+1
+                        return i-n+1
                     end
                 end
                 i += skip
@@ -114,7 +114,7 @@ function bloom_best2(s::SearchSequence,p::Tuple,i::Integer,sv::MaybeVector=nothi
                     # match found?
                     if j == n
                         if DOSTATS sv[Int(SFloops)] = loops; sv[Int(SFtests)] = bloomtests; sv[Int(SFskips)] = bloomskips; sv[Int(SFbits)] = bitcount(bloom_mask) end
-                        return i+1
+                        return i-n+1
                     end
                 end
                 # no match: skip and test bloom

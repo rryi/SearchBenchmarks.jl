@@ -1,29 +1,7 @@
-#=
-general contract for search functions f in SearchBenchmarks:
-
-    f(pattern::SearchSequence)::Tuple
-
-initializes a search structure as Tuple, which includes pattern and
-derived data for higher order search functions.
-It is put in a separate method to allow for simpler timing
-measurement of initialization code.
-
-It is used in the search "kernel", which consists of the main
-search loop:
-
-    f(ss::Tuple,text::SearchSequence,start::Int)
-
-=#
-
-
 """
-This is the original implementation in julia Base,
-method _searchindex(s::SearchSequence, t::SearchSequence, i::Integer).
+@inbounds variant of bloom_v0
+benchmark shows no significant effect.
 
-Some technical changes are:
- * split into initialization and kernel
- * benchmark measurements, compiled away if last parameter is nothing
- * code is valid for String and ByteArray sequences
 """
 function bloom_v0i end
 
@@ -41,8 +19,8 @@ function bloom_v0i(t::SearchSequence)
     return t,bloom_mask,skip,tlast
 end
 
-function bloom_v0i(s::SearchSequence, t::SearchSequence, i::Integer,sv::MaybeVector)
-    bloom_v0i(s,bloom_v0(t),i,sv)
+function bloom_v0i(s::SearchSequence, t::SearchSequence, i::Integer)
+    bloom_v0i(s,bloom_v0(t),i)
 end
 
 function bloom_v0i(s::SearchSequence, p::Tuple,i::Integer,sv::MaybeVector=nothing)

@@ -18,8 +18,8 @@ function bloom_v3(t::SearchSequence)
     return t,bloom_mask,skip,tlast
 end
 
-function bloom_v3(s::SearchSequence, t::SearchSequence, i::Integer,sv::MaybeVector=nothing)
-    bloom_v3(s,bloom_v3(t),i,sv)
+function bloom_v3(s::SearchSequence, t::SearchSequence, i::Integer)
+    bloom_v3(s,bloom_v3(t),i)
 end
 
 function bloom_v3(s::SearchSequence, p::Tuple,i::Integer,sv::MaybeVector=nothing)

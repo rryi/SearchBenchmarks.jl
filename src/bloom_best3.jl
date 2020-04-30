@@ -3,14 +3,15 @@ bloom_best variant
 
     * use struct for initialitation results directlye
 
-    * at some price: 1-2% performance
+benchmark result is: optimizer cannot remove struct access,
+so runtime is worse about factor 2
 """
 function bloom_best3 end
 
 struct SearchStructure
     t::SearchSequence
-    bloom_mask::Int64
-    bloom_skip::Int64
+    bloom_mask::UInt64
+    bloom_skip::Int
     bloom_bits::Int
     skip::Int
     tlast::UInt8
@@ -20,7 +21,7 @@ end
 function bloom_best3(t::SearchSequence)
     n = sizeof(t)
     skip = n
-    tlast = _nthbyte(t,n)%UInt8
+    tlast = _nthbyte(t,n)
     bloom_mask = UInt64(_search_bloom_mask(tlast))
     bloom_bits = 1 # no. of bits set in bloom filter if <= 32
     bloom_skip = 1 # no. of bytes to skip if byte not in filter
@@ -54,8 +55,8 @@ function bloom_best3(t::SearchSequence)
     return SearchStructure(t,bloom_mask,bloom_skip,bloom_bits,skip,tlast)
 end
 
-function bloom_best3(s::SearchSequence, t::SearchSequence, i::Integer,sv::MaybeVector=nothing)
-    bloom_best(s,bloom_best3(t),i,sv)
+function bloom_best3(s::SearchSequence, t::SearchSequence, i::Integer)
+    bloom_best3(s,bloom_best3(t),i)
 end
 
 
@@ -99,7 +100,7 @@ function bloom_best3(s::SearchSequence,p::SearchStructure,i::Integer,sv::MaybeVe
                     # match found?
                     if j == n
                         if DOSTATS sv[Int(SFloops)] = loops; sv[Int(SFtests)] = bloomtests; sv[Int(SFskips)] = bloomskips; sv[Int(SFbits)] = bitcount(p.bloom_mask) end
-                        return i+1
+                        return i-n+1
                     end
                 end
                 # no match: skip and test bloom
@@ -123,7 +124,7 @@ function bloom_best3(s::SearchSequence,p::SearchStructure,i::Integer,sv::MaybeVe
                     # match found?
                     if j == n
                         if DOSTATS sv[Int(SFloops)] = loops; sv[Int(SFtests)] = bloomtests; sv[Int(SFskips)] = bloomskips; sv[Int(SFbits)] = bitcount(p.bloom_mask) end
-                        return i+1
+                        return i-n+1
                     end
                 end
                 # no match: skip and test bloom
