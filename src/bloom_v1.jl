@@ -1,10 +1,10 @@
 """
 v0 with improved skip after a last byte match.
 
-v0 does bloom test at current position +1 and keeps skip only if
+v0 does bloom test at current position +1 and uses skip only if
 bloom test allows not for skipping.
 
-v1 does skip and tests bloom at current position + skip
+v1 uses skip and tests bloom at current position + skip
 """
 
 

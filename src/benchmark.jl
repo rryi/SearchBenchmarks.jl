@@ -3,25 +3,25 @@
 """
 run benchmark measurements
 """
-Base.@propagate_inbounds function runbench(f::Function,s,t, b::Benchmark, stats::Bool)
+function runbench(f::Function,s,t, b::Benchmark, stats::Bool)
     #print(string(f),": ")
     sf = zeros(Int,Int(typemax(StatsFields)))
-    starttime = time_ns()
-    pattern =f(t)
+    starttime =  time_ns()
+    pattern = f(t)
     inittime =  time_ns()
+    pos = 0
     if stats
-        pos = f(s,pattern,1,sf)
+        while (pos = f(s,pattern,pos+1,sf))>0 end
     else
-        pos = f(s,pattern,1,nothing)
+        while (pos = f(s,pattern,pos+1,nothing))>0 end
     end
     kerneltime = time_ns()
-    sf[Int(SFinit)] = (inittime - starttime)%Int
-    sf[Int(SFkernel)] = (kerneltime-inittime)%Int
     if sizeof(t)>2
-        # patternsize 2 is 1st run with compile, ignore it
+        sf[Int(SFinit)] = (inittime - starttime)%Int
+        sf[Int(SFkernel)] = (kerneltime-inittime)%Int
+        # patternsize 2 is 1st run, ignore it (may include compilation)
         record(b,f,sizeof(t),sf)
     end
-    pos
 end
 
 

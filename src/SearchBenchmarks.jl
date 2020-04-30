@@ -16,6 +16,10 @@ include("bloom_v4.jl")
 export bloom_v0, bloom_v1, bloom_v2, bloom_v3, bloom_v4
 include("bloom_best.jl")
 export bloom_best
+include("bloom_best2.jl")
+export bloom_best2
+include("bloom_best3.jl")
+export bloom_best3
 include("bmsearch.jl")
 export bmsearch
 include("naivesearch.jl")

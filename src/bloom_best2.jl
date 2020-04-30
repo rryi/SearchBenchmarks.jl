@@ -1,15 +1,14 @@
 """
-Optimized search function, using benchmark insights:
+bloom_best variant without separate treatmnent of i==m outside of main loop
 
-    * use "bloom first" (bloom_v4) for small patterns
+    * shorter code
 
-    * restrict skips on large patterns, avoiding filter degeneration
-      and also reducing initialization effort
+    * at some price: 1-2% performance
 
 """
-function bloom_besti end
+function bloom_best2 end
 
-function bloom_besti(t::SearchSequence)
+function bloom_best2(t::SearchSequence)
     n = sizeof(t)
     skip = n
     tlast = _nthbyte(t,n)
@@ -46,13 +45,12 @@ function bloom_besti(t::SearchSequence)
     return t,bloom_mask,bloom_skip,bloom_bits,skip,tlast
 end
 
-function bloom_besti(s::SearchSequence, t::SearchSequence, i::Integer,sv::MaybeVector=nothing)
-    bloom_besti(s,bloom_besti(t),i,sv)
+function bloom_best2(s::SearchSequence, t::SearchSequence, i::Integer,sv::MaybeVector=nothing)
+    bloom_besti(s,bloom_best2(t),i,sv)
 end
 
 
-function bloom_besti(s::SearchSequence,p::Tuple,i::Integer,sv::MaybeVector=nothing)
-    @inbounds begin
+function bloom_best2(s::SearchSequence,p::Tuple,i::Integer,sv::MaybeVector=nothing)
     (t,bloom_mask,bloom_skip,bloom_bits,skip,tlast) = p
     DOSTATS = !(sv isa Nothing)
     n = sizeof(t)
@@ -76,7 +74,7 @@ function bloom_besti(s::SearchSequence,p::Tuple,i::Integer,sv::MaybeVector=nothi
     i +=n-1
     if bloom_bits <= 12 # best guess from benchmarks
         # do bloom test first in loop
-        while i < m
+        while i <= m
             if DOSTATS loops += 1 end
             if DOSTATS bloomtests += 1 end
             if bloom_mask & _search_bloom_mask(_nthbyte(s,i)) == 0
@@ -96,7 +94,6 @@ function bloom_besti(s::SearchSequence,p::Tuple,i::Integer,sv::MaybeVector=nothi
                         return i+1
                     end
                 end
-                # no match: skip and test bloom
                 i += skip
             else
                 i +=1
@@ -104,7 +101,7 @@ function bloom_besti(s::SearchSequence,p::Tuple,i::Integer,sv::MaybeVector=nothi
         end
     else
         # do byte test first
-        while i < m
+        while i <= m
             if DOSTATS loops += 1 end
             if _nthbyte(s,i) == tlast
                 # check candidate
@@ -130,25 +127,11 @@ function bloom_besti(s::SearchSequence,p::Tuple,i::Integer,sv::MaybeVector=nothi
             else
                 i += 1
                 if DOSTATS bloomtests += 1 end
-                if bloom_mask & _search_bloom_mask(_nthbyte(s,i)) == 0
+                if i<=m && bloom_mask & _search_bloom_mask(_nthbyte(s,i)) == 0
                     if DOSTATS bloomskips += 1 end
                     i += bloom_skip
                 end
             end
-        end
-    end
-    if i==m
-        # test end match
-        j = 1
-        while j <= n
-            if _nthbyte(s,i-n+j) != _nthbyte(t,j)
-                break # not found
-            end
-            if j == n
-                if DOSTATS sv[Int(SFloops)] = loops; sv[Int(SFtests)] = bloomtests; sv[Int(SFskips)] = bloomskips; sv[Int(SFbits)] = bitcount(bloom_mask) end
-                return i-n+1
-            end # match at the very end
-            j += 1
         end
     end
     if DOSTATS sv[Int(SFloops)] = loops end
@@ -156,5 +139,4 @@ function bloom_besti(s::SearchSequence,p::Tuple,i::Integer,sv::MaybeVector=nothi
     if DOSTATS sv[Int(SFskips)] = bloomskips end
     if DOSTATS sv[Int(SFbits)] = bitcount(bloom_mask) end
     0
-end
 end
