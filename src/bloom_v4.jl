@@ -46,18 +46,19 @@ function bloom_v4(s::SearchSequence,p::Tuple,i::Integer,sv::MaybeVector=nothing)
     while i <= m
         if DOSTATS loops += 1 end
         if DOSTATS bloomtests += 1 end
-        if bloom_mask & _search_bloom_mask(_nthbyte(s,i)) == 0
+        silast = _nthbyte(s,i)
+        if bloom_mask & _search_bloom_mask(silast) == 0
             if DOSTATS bloomskips += 1 end
             i += n
         else
-            if _nthbyte(s,i) == tlast
+            if silast == tlast
                 # check candidate
                 j = 1
                 while _nthbyte(s,i-n+j) == _nthbyte(t,j)
                     j += 1
                     # match found?
                     if j == n
-                        if DOSTATS sv[Int(SFloops)] = loops; sv[Int(SFtests)] = bloomtests; sv[Int(SFskips)] = bloomskips; sv[Int(SFbits)] = bitcount(bloom_mask) end
+                        if DOSTATS recordcase(sv, loops, bloomtests, bloomskips, bitcount(bloom_mask), skip) end
                         return i-n+1
                     end
                 end
@@ -68,9 +69,6 @@ function bloom_v4(s::SearchSequence,p::Tuple,i::Integer,sv::MaybeVector=nothing)
             end
         end
     end
-    if DOSTATS sv[Int(SFloops)] = loops end
-    if DOSTATS sv[Int(SFtests)] = bloomtests end
-    if DOSTATS sv[Int(SFskips)] = bloomskips end
-    if DOSTATS sv[Int(SFbits)] = bitcount(bloom_mask) end
+    if DOSTATS recordcase(sv, loops, bloomtests, bloomskips, bitcount(bloom_mask), skip) end
     0
 end

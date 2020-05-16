@@ -30,6 +30,7 @@ end
     SFtests         # no. of performed higher order (eg bloom) tests.
     SFskips         # no. of performed higher order (eg bloom) skips
     SFbits          # no. of bits set in the bloom filter
+    SFskipgood      # no. of bytes to skip if last byte matches, others not
 end
 
 
@@ -83,6 +84,16 @@ function record(stats::Benchmark, f::Function, i::Int, sv::MaybeVector)
         push!(stats.dict,f=>mat)
     end
     mat[i,:] = sv
+end
+
+
+"put statistic values from a search run into vector"
+function recordcase(sv::Vector{Int},loops::Integer,bloomtests::Integer,bloomskips::Integer, bloom_bits::Integer, skipgood::Integer)
+    sv[Int(SFloops)] += loops
+    sv[Int(SFtests)] += bloomtests
+    sv[Int(SFskips)] += bloomskips
+    sv[Int(SFbits)] = bloom_bits
+    sv[Int(SFskipgood)] = skipgood
 end
 
 

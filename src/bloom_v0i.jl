@@ -1,6 +1,10 @@
 """
 @inbounds variant of bloom_v0
+
 benchmark shows no significant effect.
+I tried also a replacement of Base._nthbyte declared @propagate_inbounds,
+which did not change results. Maybe LLVM does an excellent job and eliminates
+bounds checks within loops by index limit analysis?!
 
 """
 function bloom_v0i end
@@ -72,7 +76,7 @@ function bloom_v0i(s::SearchSequence, p::Tuple,i::Integer,sv::MaybeVector=nothin
 
             # match found
             if j == n - 1
-                if DOSTATS sv[Int(SFloops)] = loops; sv[Int(SFtests)] = bloomtests; sv[Int(SFskips)] = bloomskips; sv[Int(SFbits)] = bitcount(bloom_mask) end
+                if DOSTATS recordcase(sv, loops, bloomtests, bloomskips, bitcount(bloom_mask), skip) end
                 return i+1
             end
 
@@ -93,10 +97,7 @@ function bloom_v0i(s::SearchSequence, p::Tuple,i::Integer,sv::MaybeVector=nothin
         end
         i += 1
     end
-    if DOSTATS sv[Int(SFloops)] = loops end
-    if DOSTATS sv[Int(SFtests)] = bloomtests end
-    if DOSTATS sv[Int(SFskips)] = bloomskips end
-    if DOSTATS sv[Int(SFbits)] = bitcount(bloom_mask) end
+    if DOSTATS recordcase(sv, loops, bloomtests, bloomskips, bitcount(bloom_mask), skip) end
     0
 end
 end

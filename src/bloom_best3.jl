@@ -1,10 +1,12 @@
 """
 bloom_best variant
 
+    * use "bloom first" (bloom_v4) for small patterns
+
     * use struct for initialitation results directlye
 
-benchmark result is: optimizer cannot remove struct access,
-so runtime is worse about factor 2
+benchmark result is: seems like optimizer cannot remove struct access,
+so runtime is worse.
 """
 function bloom_best3 end
 
@@ -52,6 +54,7 @@ function bloom_best3(t::SearchSequence)
             end
         end
     end
+    skip -=1
     return SearchStructure(t,bloom_mask,bloom_skip,bloom_bits,skip,tlast)
 end
 
@@ -89,7 +92,9 @@ function bloom_best3(s::SearchSequence,p::SearchStructure,i::Integer,sv::MaybeVe
             if p.bloom_mask & _search_bloom_mask(_nthbyte(s,i)) == 0
                 if DOSTATS bloomskips += 1 end
                 i += p.bloom_skip
-            elseif _nthbyte(s,i) == p.tlast
+                continue
+            end
+            if _nthbyte(s,i) == p.tlast
                 # check candidate
                 j = 1
                 while j < n
@@ -99,15 +104,14 @@ function bloom_best3(s::SearchSequence,p::SearchStructure,i::Integer,sv::MaybeVe
                     j += 1
                     # match found?
                     if j == n
-                        if DOSTATS sv[Int(SFloops)] = loops; sv[Int(SFtests)] = bloomtests; sv[Int(SFskips)] = bloomskips; sv[Int(SFbits)] = bitcount(p.bloom_mask) end
+                        if DOSTATS recordcase(sv, loops, bloomtests, bloomskips, bitcount(bloom_mask), skip) end
                         return i-n+1
                     end
                 end
                 # no match: skip and test bloom
                 i += p.skip
-            else
-                i +=1
             end
+            i +=1
         end
     else
         # do byte test first
@@ -123,24 +127,21 @@ function bloom_best3(s::SearchSequence,p::SearchStructure,i::Integer,sv::MaybeVe
                     j += 1
                     # match found?
                     if j == n
-                        if DOSTATS sv[Int(SFloops)] = loops; sv[Int(SFtests)] = bloomtests; sv[Int(SFskips)] = bloomskips; sv[Int(SFbits)] = bitcount(p.bloom_mask) end
+                        if DOSTATS recordcase(sv, loops, bloomtests, bloomskips, bitcount(bloom_mask), skip) end
                         return i-n+1
                     end
                 end
                 # no match: skip and test bloom
                 i += p.skip
-                if DOSTATS bloomtests += 1 end
-                if i<w && p.bloom_mask & _search_bloom_mask(_nthbyte(s,i)) == 0
-                    if DOSTATS bloomskips += 1 end
-                    i += p.bloom_skip
+                if i>=w
+                    break
                 end
-            else
-                i += 1
-                if DOSTATS bloomtests += 1 end
-                if p.bloom_mask & _search_bloom_mask(_nthbyte(s,i)) == 0
-                    if DOSTATS bloomskips += 1 end
-                    i += p.bloom_skip
-                end
+            end
+            i += 1
+            if DOSTATS bloomtests += 1 end
+            if p.bloom_mask & _search_bloom_mask(_nthbyte(s,i)) == 0
+                if DOSTATS bloomskips += 1 end
+                i += p.bloom_skip
             end
         end
     end
@@ -152,15 +153,12 @@ function bloom_best3(s::SearchSequence,p::SearchStructure,i::Integer,sv::MaybeVe
                 break # not found
             end
             if j == n
-                if DOSTATS sv[Int(SFloops)] = loops; sv[Int(SFtests)] = bloomtests; sv[Int(SFskips)] = bloomskips; sv[Int(SFbits)] = bitcount(p.bloom_mask) end
+                if DOSTATS recordcase(sv, loops, bloomtests, bloomskips, bitcount(bloom_mask), skip) end
                 return i-n+1
             end # match at the very end
             j += 1
         end
     end
-    if DOSTATS sv[Int(SFloops)] = loops end
-    if DOSTATS sv[Int(SFtests)] = bloomtests end
-    if DOSTATS sv[Int(SFskips)] = bloomskips end
-    if DOSTATS sv[Int(SFbits)] = bitcount(p.bloom_mask) end
+    if DOSTATS recordcase(sv, loops, bloomtests, bloomskips, bitcount(bloom_mask), skip) end
     0
 end

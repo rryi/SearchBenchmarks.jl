@@ -1,17 +1,11 @@
 """
-
-    * use "bloom first" (bloom_v4) for small patterns
-
-bloom_best variant without separate treatment of i==m outside of main loop
-
-    * shorter code
-
-    * at some price: 1-2% performance
+like bloom_best2, but with continue in main loop instead of elseif
+no significant change (as expected)
 
 """
-function bloom_best2 end
+function bloom_best end
 
-function bloom_best2(t::SearchSequence)
+function bloom_bestc(t::SearchSequence)
     n = sizeof(t)
     skip = n
     tlast = _nthbyte(t,n)
@@ -48,12 +42,12 @@ function bloom_best2(t::SearchSequence)
     return t,bloom_mask,bloom_skip,bloom_bits,skip,tlast
 end
 
-function bloom_best2(s::SearchSequence, t::SearchSequence, i::Integer)
-    bloom_best2(s,bloom_best2(t),i)
+function bloom_bestc(s::SearchSequence, t::SearchSequence, i::Integer)
+    bloom_best(s,bloom_bestc(t),i)
 end
 
 
-function bloom_best2(s::SearchSequence,p::Tuple,i::Integer,sv::MaybeVector=nothing)
+function bloom_bestc(s::SearchSequence,p::Tuple,i::Integer,sv::MaybeVector=nothing)
     (t,bloom_mask,bloom_skip,bloom_bits,skip,tlast) = p
     DOSTATS = !(sv isa Nothing)
     n = sizeof(t)
@@ -77,13 +71,15 @@ function bloom_best2(s::SearchSequence,p::Tuple,i::Integer,sv::MaybeVector=nothi
     i +=n-1
     if bloom_bits <= 12 # best guess from benchmarks
         # do bloom test first in loop
-        while i <= m
+        while i < m
             if DOSTATS loops += 1 end
             if DOSTATS bloomtests += 1 end
             if bloom_mask & _search_bloom_mask(_nthbyte(s,i)) == 0
                 if DOSTATS bloomskips += 1 end
                 i += bloom_skip
-            elseif _nthbyte(s,i) == tlast
+                continue
+            end
+            if _nthbyte(s,i) == tlast
                 # check candidate
                 j = 1
                 while j < n
@@ -93,18 +89,19 @@ function bloom_best2(s::SearchSequence,p::Tuple,i::Integer,sv::MaybeVector=nothi
                     j += 1
                     # match found?
                     if j == n
-                        if DOSTATS recordcase(sv, loops, bloomtests, bloomskips, bitcount(bloom_mask), skip) end
+                        if DOSTATS sv[Int(SFloops)] = loops; sv[Int(SFtests)] = bloomtests; sv[Int(SFskips)] = bloomskips; sv[Int(SFbits)] = bitcount(bloom_mask) end
                         return i-n+1
                     end
                 end
+                # no match: skip and test bloom
                 i += skip
-            else
-                i +=1
+                continue
             end
+            i +=1
         end
     else
         # do byte test first
-        while i <= m
+        while i < m
             if DOSTATS loops += 1 end
             if _nthbyte(s,i) == tlast
                 # check candidate
@@ -120,15 +117,34 @@ function bloom_best2(s::SearchSequence,p::Tuple,i::Integer,sv::MaybeVector=nothi
                         return i-n+1
                     end
                 end
-                # no match: skip, no bloom test
-                i += skip-1
+                # no match: skip and test bloom
+                i += skip
+                if DOSTATS bloomtests += 1 end
+                if i>=w
+                    break
+                end
+                continue
             end
             i += 1
             if DOSTATS bloomtests += 1 end
-            if i<=m && bloom_mask & _search_bloom_mask(_nthbyte(s,i)) == 0
+            if bloom_mask & _search_bloom_mask(_nthbyte(s,i)) == 0
                 if DOSTATS bloomskips += 1 end
                 i += bloom_skip
             end
+        end
+    end
+    if i==m
+        # test end match
+        j = 1
+        while j <= n
+            if _nthbyte(s,i-n+j) != _nthbyte(t,j)
+                break # not found
+            end
+            if j == n
+                if DOSTATS recordcase(sv, loops, bloomtests, bloomskips, bitcount(bloom_mask), skip) end
+                return i-n+1
+            end # match at the very end
+            j += 1
         end
     end
     if DOSTATS recordcase(sv, loops, bloomtests, bloomskips, bitcount(bloom_mask), skip) end

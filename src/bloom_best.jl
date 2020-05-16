@@ -46,6 +46,7 @@ function bloom_best(t::SearchSequence)
             end
         end
     end
+    skip -= 1 # add 1 to skip in main loop
     return t,bloom_mask,bloom_skip,bloom_bits,skip,tlast
 end
 
@@ -76,67 +77,34 @@ function bloom_best(s::SearchSequence,p::Tuple,i::Integer,sv::MaybeVector=nothin
     if DOSTATS bloomtests = 0 end
     if DOSTATS bloomskips = 0 end
     i +=n-1
-    if bloom_bits <= 12 # best guess from benchmarks
-        # do bloom test first in loop
-        while i < m
-            if DOSTATS loops += 1 end
-            if DOSTATS bloomtests += 1 end
-            if bloom_mask & _search_bloom_mask(_nthbyte(s,i)) == 0
-                if DOSTATS bloomskips += 1 end
-                i += bloom_skip
-            elseif _nthbyte(s,i) == tlast
-                # check candidate
-                j = 1
-                while j < n
-                    if _nthbyte(s,i-n+j) != _nthbyte(t,j)
-                        break
-                    end
-                    j += 1
-                    # match found?
-                    if j == n
-                        if DOSTATS sv[Int(SFloops)] = loops; sv[Int(SFtests)] = bloomtests; sv[Int(SFskips)] = bloomskips; sv[Int(SFbits)] = bitcount(bloom_mask) end
-                        return i-n+1
-                    end
+    # do byte test first
+    while i < m
+        if DOSTATS loops += 1 end
+        if _nthbyte(s,i) == tlast
+            # check candidate
+            j = 1
+            while j < n
+                if _nthbyte(s,i-n+j) != _nthbyte(t,j)
+                    break
                 end
-                # no match: skip and test bloom
-                i += skip
-            else
-                i +=1
+                j += 1
+                # match found?
+                if j == n
+                    if DOSTATS recordcase(sv, loops, bloomtests, bloomskips, bitcount(bloom_mask), skip) end
+                    return i-n+1
+                end
+            end
+            # no match: skip and test bloom
+            i += skip
+            if i>=m # main loop finished?
+                break
             end
         end
-    else
-        # do byte test first
-        while i < m
-            if DOSTATS loops += 1 end
-            if _nthbyte(s,i) == tlast
-                # check candidate
-                j = 1
-                while j < n
-                    if _nthbyte(s,i-n+j) != _nthbyte(t,j)
-                        break
-                    end
-                    j += 1
-                    # match found?
-                    if j == n
-                        if DOSTATS sv[Int(SFloops)] = loops; sv[Int(SFtests)] = bloomtests; sv[Int(SFskips)] = bloomskips; sv[Int(SFbits)] = bitcount(bloom_mask) end
-                        return i-n+1
-                    end
-                end
-                # no match: skip and test bloom
-                i += skip
-                if DOSTATS bloomtests += 1 end
-                if i<w && bloom_mask & _search_bloom_mask(_nthbyte(s,i)) == 0
-                    if DOSTATS bloomskips += 1 end
-                    i += bloom_skip
-                end
-            else
-                i += 1
-                if DOSTATS bloomtests += 1 end
-                if bloom_mask & _search_bloom_mask(_nthbyte(s,i)) == 0
-                    if DOSTATS bloomskips += 1 end
-                    i += bloom_skip
-                end
-            end
+        i += 1
+        if DOSTATS bloomtests += 1 end
+        if bloom_mask & _search_bloom_mask(_nthbyte(s,i)) == 0
+            if DOSTATS bloomskips += 1 end
+            i += bloom_skip
         end
     end
     if i==m
@@ -147,15 +115,12 @@ function bloom_best(s::SearchSequence,p::Tuple,i::Integer,sv::MaybeVector=nothin
                 break # not found
             end
             if j == n
-                if DOSTATS sv[Int(SFloops)] = loops; sv[Int(SFtests)] = bloomtests; sv[Int(SFskips)] = bloomskips; sv[Int(SFbits)] = bitcount(bloom_mask) end
+                if DOSTATS recordcase(sv, loops, bloomtests, bloomskips, bitcount(bloom_mask), skip) end
                 return i-n+1
             end # match at the very end
             j += 1
         end
     end
-    if DOSTATS sv[Int(SFloops)] = loops end
-    if DOSTATS sv[Int(SFtests)] = bloomtests end
-    if DOSTATS sv[Int(SFskips)] = bloomskips end
-    if DOSTATS sv[Int(SFbits)] = bitcount(bloom_mask) end
+    if DOSTATS recordcase(sv, loops, bloomtests, bloomskips, bitcount(bloom_mask), skip) end
     0
 end

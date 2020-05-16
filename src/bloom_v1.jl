@@ -62,18 +62,14 @@ function bloom_v1(s::SearchSequence,p::Tuple, i::Integer,sv::MaybeVector=nothing
             end
             # match found?
             if j == n - 1
-                if DOSTATS sv[Int(SFloops)] = loops; sv[Int(SFtests)] = bloomtests; sv[Int(SFskips)] = bloomskips; sv[Int(SFbits)] = bitcount(bloom_mask) end
+                if DOSTATS recordcase(sv, loops, bloomtests, bloomskips, bitcount(bloom_mask), skip) end
                 return i+1
             end
 
             # no match. skip forward and try bloom
-            if DOSTATS bloomtests += 1 end
             i += skip
-            if i < w && bloom_mask & _search_bloom_mask(_nthbyte(s,i+n+1)) == 0
-                if DOSTATS bloomskips += 1 end
-                i += n
-            end
-        elseif i < w
+        end
+        if i < w
             if DOSTATS bloomtests += 1 end
             if bloom_mask & _search_bloom_mask(_nthbyte(s,i+n+1)) == 0
                 if DOSTATS bloomskips += 1 end
@@ -82,9 +78,6 @@ function bloom_v1(s::SearchSequence,p::Tuple, i::Integer,sv::MaybeVector=nothing
         end
         i += 1
     end
-    if DOSTATS sv[Int(SFloops)] = loops end
-    if DOSTATS sv[Int(SFtests)] = bloomtests end
-    if DOSTATS sv[Int(SFskips)] = bloomskips end
-    if DOSTATS sv[Int(SFbits)] = bitcount(bloom_mask) end
+    if DOSTATS recordcase(sv, loops, bloomtests, bloomskips, bitcount(bloom_mask), skip) end
     0
 end

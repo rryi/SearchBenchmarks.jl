@@ -71,7 +71,7 @@ function bmsearch(s::SearchSequence,p::Tuple, i::Integer,sv::MaybeVector=nothing
             while (sij=_nthbyte(s,i-n+j) == _nthbyte(t,j))
                 # match found?
                 if j == 1
-                    if DOSTATS sv[Int(SFloops)] = loops; sv[Int(SFtests)] = bloomtests; sv[Int(SFskips)] = bloomskips; sv[Int(SFbits)] = 0 end
+                    if DOSTATS recordcase(sv, loops, bloomtests, bloomskips, 0, skip) end
                     return i-n+1
                 end
                 j -= 1
@@ -81,9 +81,6 @@ function bmsearch(s::SearchSequence,p::Tuple, i::Integer,sv::MaybeVector=nothing
             if DOSTATS && j - badchar[sij+1]>skip; bloomtests+=1;end
         end
     end
-    if DOSTATS sv[Int(SFloops)] = loops end
-    if DOSTATS sv[Int(SFtests)] = bloomtests end
-    if DOSTATS sv[Int(SFskips)] = bloomskips end
-    if DOSTATS sv[Int(SFbits)] = 0 end
+    if DOSTATS recordcase(sv, loops, bloomtests, bloomskips, 0, skip) end
     0
 end
