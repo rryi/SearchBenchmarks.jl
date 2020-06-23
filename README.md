@@ -68,9 +68,13 @@ TXT is a scenario searching in redundant Utf8 text, my experiments use some juli
 
 ### Julia base implementation - better than expected
 
-When I was looking for an efficient search algorithm in julia, I started with a look into the Base package, expecting a lowlevel C-code implementation of a naive search (naive means here a search with comparing byte by byte, and advancing the search position by 1 on a mismatch). I was glad to see that julia took a higher order approach, and it pays off:
+When I was looking for an efficient search algorithm in julia, I started with a look into the Base package, expecting a lowlevel C-code implementation of a naive search (naive means here a search with comparing byte by byte, and advancing the search position by 1 on a mismatch). I was glad to see that julia took a higher order approach, and it pays off (bloom_v0 is a copy of julia base \_searchindex with technical modifications for benchmarking):
 
 ![graph](https://github.com/rryi/SearchBenchmarks.jl/blob/master/test/RND/(1)%20RND%20julia%20impl%20much%20better%20than%20naive%20search.png)
+
+![graph](https://github.com/rryi/SearchBenchmarks.jl/blob/master/test/BIN/(1)%20BIN%20julia%20impl%20much%20better%20than%20naive%20search.png)
+
+![graph](https://github.com/rryi/SearchBenchmarks.jl/blob/master/test/TXT/(1)%20TXT%20julia%20impl%20much%20better%20than%20naive%20search.png)
 
 ### Small optimizations on julia code
 
