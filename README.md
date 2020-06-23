@@ -24,7 +24,7 @@ Package compiles, passes tests and builds at least with Windows 10 and Julia 1.4
 
 I suggest a couple of code changes to the current julia base implementation, improving its runtime performance in almost all tested scenarios by 20% and more in the implementation bloom_best. For heavy searching, a search function based on some Boyer-Moore algorithm seems superior, with gains of up to 50% in the search kernel, but at higher initialization costs. My current idea is to add it as an additional search function, split into search initialization and search kernel.
 
-For Details, see benchmark results.
+For details, see benchmark results.
 
 ## Installation
 
@@ -88,11 +88,11 @@ Some technical improvements in the index variables are implemented in bloom_v3, 
 
 The performance results of all three changes:
 
-![graph]https://github.com/rryi/SearchBenchmarks.jl/blob/master/test/RND/(2)%20RND%20julia%20bloom%20impl%20optimizations.png)
+![graph](https://github.com/rryi/SearchBenchmarks.jl/blob/master/test/RND/(2)%20RND%20julia%20bloom%20impl%20optimizations.png)
 
-![graph]https://github.com/rryi/SearchBenchmarks.jl/blob/master/test/BIN/(2)%20BIN%20julia%20bloom%20impl%20optimizations.png)
+![graph](https://github.com/rryi/SearchBenchmarks.jl/blob/master/test/BIN/(2)%20BIN%20julia%20bloom%20impl%20optimizations.png)
 
-![graph]https://github.com/rryi/SearchBenchmarks.jl/blob/master/test/TXT/(2)%20TXT%20julia%20bloom%20impl%20optimizations.png)
+![graph](https://github.com/rryi/SearchBenchmarks.jl/blob/master/test/TXT/(2)%20TXT%20julia%20bloom%20impl%20optimizations.png)
 
 ### Try bloom test first
 
@@ -122,9 +122,11 @@ With increasing pattern size, more and more bits are set in the bloom filter, re
 
 Sure, in most applications, searches with a pattern length above 100 are irrelevant. But: no one expects such a degeneration for a general purpose search algorithm. And it is quite easy to avoid it: simply stop setting more bits in bloom filter once it reaches some treshold. This will lower the skip distance of a successful bloom test in favor of a higher skip probability. In function bloom_best, initializing the bloom filter stops if 32 bits are set. The choice of 32 is motivated by the simple guess of the expected bloom skip distance in the preceding chapter, it is not claimed to be an optimal setting - but benchmarks show it is often near the optimum. The kernel of bloom_best is derived from bloom_v4, with some necessary technical adjustments. As one can see, bloom_best solves the degeneration problem:
 
-![graph](https://github.com/rryi/SearchBenchmarks.jl/blob/master/test/RND/(5)%20RND%20best-of-breed%20bloom.png)
-![graph](https://github.com/rryi/SearchBenchmarks.jl/blob/master/test/BIN/(5)%20BIN%20best-of-breed%20bloom.png)
-![graph](https://github.com/rryi/SearchBenchmarks.jl/blob/master/test/TXT/(5)%20TXT%20best-of-breed%20bloom.png)
+![graph](https://github.com/rryi/SearchBenchmarks.jl/blob/master/test/RND/(5)%20RND%20limited%20bits%20in%20bloom%20filter.png)
+
+![graph](https://github.com/rryi/SearchBenchmarks.jl/blob/master/test/BIN/(5)%20BIN%20limited%20bits%20in%20bloom%20filter.png)
+
+![graph](https://github.com/rryi/SearchBenchmarks.jl/blob/master/test/TXT/(5)%20TXT%20limited%20bits%20in%20bloom%20filter.png)
 
 ### An alternative for heavy searching: Boyer-Moore
 
