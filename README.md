@@ -43,7 +43,7 @@ Benchmarking is done like this:
 
 This will generate a random sequence of 1000000 bytes in the range 0:0x7f with seed 1234 and search with patterns at the end of the search sequence of length up to 100. See also benchmark doc string.
 
-Instead of random data you can use files as search sequences -  supply a String with a file path as 3rd parameter. The fourth parameter is also a file path, but without extension. Path syntax is platform specific, e.g. in Windows "C:\\MyBenchmark\\Run1\\result". The last parameter causes collection of statistics, if set to **true**. Collecting statistics distorts runtime measurement, it is intended to be used in separate runs for debugging and explaining runtime behavior.
+Instead of random data, you can use files as sequences to search in - supply a String with a file path as 3rd parameter. The fourth parameter is also a file path, but without extension. Path syntax is platform specific, e.g. in Windows "C:\\MyBenchmark\\Run1\\result". The last parameter causes collection of statistics, if set to **true**. Collecting statistics distorts runtime measurement, it is intended to be used in separate runs for debugging and explaining runtime behavior.
 
 However, customizing benchmarks by parameters is quite restricted. This is why I recommend to install the package in development state: start experimenting with your own benchmark settings by modifying the code. And experiment with modified or additional search functions.
 
