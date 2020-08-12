@@ -70,6 +70,8 @@ TXT is a scenario searching in redundant Utf8 text, my experiments use some juli
 
 All benchmark runs generate a CSV table and a graphic showing the runtime of the included functions in mSec in relation to the search pattern size in bytes.
 
+Following benchmark results were produced with a PC running Windows 10 64 bit, CPU Ryzen 1700, Julia 1.5.0.
+
 ### Julia base implementation - better than expected
 
 When I was looking for an efficient search algorithm in julia, I started with a look into the Base package, expecting a lowlevel C-code implementation of a naive search (naive here means a search comparing byte by byte, and advancing the search position by 1 on a mismatch). I was glad to see that julia took a higher order approach, and it pays off (bloom_v0 is a copy of julia base \_searchindex with technical modifications for benchmarking):
