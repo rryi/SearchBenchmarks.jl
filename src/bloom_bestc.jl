@@ -43,7 +43,7 @@ function bloom_bestc(t::SearchSequence)
 end
 
 function bloom_bestc(s::SearchSequence, t::SearchSequence, i::Integer)
-    bloom_best(s,bloom_bestc(t),i)
+    bloom_bestc(s,bloom_bestc(t),i)
 end
 
 
