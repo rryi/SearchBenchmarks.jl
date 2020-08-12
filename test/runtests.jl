@@ -18,7 +18,7 @@ end
     test_seed = 2345 # random generator seed
     # get search functions
     searches = all_search_functions()
-    #@info "# search functions: ",searches
+    @info "search functions are: ",searches
 
     # compare search results of all functions
     f0 = pop!(searches)
@@ -37,10 +37,9 @@ end
                 posf = f(s,t,pos)
                 if pos0!=posf
                     # error! report params
-                    @error "test fails on $f0($s,$t,$pos) == $f($s,$t,$pos): $pos0 == $posf"
+                    @error "test fails on pattern size $psize:  $f0(s,t,$pos) == $f(s,t,$pos)"
                 end
                 @test pos0 == posf
-                #@info "$f(s,t,pos) = $pp"
             end
             if pos0 == 0
                 break
