@@ -18,7 +18,7 @@ You are kindly invited to participate. I will add all contributed search functio
 
 ### technical
 
-SearchBenchmarks compiles, passes tests and builds - at least with Windows 10 and Julia 1.4.1, 1.4.2 and 1.5.0. I have no idea why some CI tools report "unable to find commit in GitHub" or "build failed". If someone has an idea - please help. I would really like to get CI tools running as expected, but I am new to GitHub and linked CI tools  - this is my first Julia package in a "ready to use" state (I would not claim release 1.0, though).
+SearchBenchmarks compiles, passes tests and builds - at least with Windows 10 and Julia 1.0.5, 1.4.1, 1.4.2 and 1.5.0 (64-bit versions).
 
 ### findings and recommendation
 

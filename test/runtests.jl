@@ -31,14 +31,18 @@ end
         t = s[test_textsize-psize+1:test_textsize]
         pos0 = 0
         while true
-            pos = pos0+1
+            pos = pos0 + 1
             pos0 = f0(s,t,pos)
             for f in searches
-                @test pos0 == f(s,t,pos)
+                posf = f(s,t,pos)
+                if pos0!=posf
+                    # error! report params
+                    @error "test fails on $f0($s,$t,$pos) == $f($s,$t,$pos): $pos0 == $posf"
+                end
+                @test pos0 == posf
                 #@info "$f(s,t,pos) = $pp"
             end
-            pos = pos0
-            if pos == 0
+            if pos0 == 0
                 break
             end
         end

@@ -104,7 +104,7 @@ function bloom_best3(s::SearchSequence,p::SearchStructure,i::Integer,sv::MaybeVe
                     j += 1
                     # match found?
                     if j == n
-                        if DOSTATS recordcase(sv, loops, bloomtests, bloomskips, bitcount(bloom_mask), skip) end
+                        if DOSTATS recordcase(sv, loops, bloomtests, bloomskips, bitcount(p.bloom_mask), p.skip) end
                         return i-n+1
                     end
                 end
@@ -127,7 +127,7 @@ function bloom_best3(s::SearchSequence,p::SearchStructure,i::Integer,sv::MaybeVe
                     j += 1
                     # match found?
                     if j == n
-                        if DOSTATS recordcase(sv, loops, bloomtests, bloomskips, bitcount(bloom_mask), skip) end
+                        if DOSTATS recordcase(sv, loops, bloomtests, bloomskips, bitcount(p.bloom_mask), p.skip) end
                         return i-n+1
                     end
                 end
@@ -153,12 +153,12 @@ function bloom_best3(s::SearchSequence,p::SearchStructure,i::Integer,sv::MaybeVe
                 break # not found
             end
             if j == n
-                if DOSTATS recordcase(sv, loops, bloomtests, bloomskips, bitcount(bloom_mask), skip) end
+                if DOSTATS recordcase(sv, loops, bloomtests, bloomskips, bitcount(p.bloom_mask), p.skip) end
                 return i-n+1
             end # match at the very end
             j += 1
         end
     end
-    if DOSTATS recordcase(sv, loops, bloomtests, bloomskips, bitcount(bloom_mask), skip) end
+    if DOSTATS recordcase(sv, loops, bloomtests, bloomskips, bitcount(p.bloom_mask), p.skip) end
     0
 end

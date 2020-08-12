@@ -95,7 +95,7 @@ Base.@propagate_inbounds function benchmark(patternsize::Int, textsize::Int, sou
     plotkernel =plot()
     # remove (windows) path part from result for title to keep plot title intact
     title = result
-    endpath = findlast('\\',result)
+    endpath = findlast("\\",result)
     if endpath != nothing
         title = result[endpath+1:end]
     end
